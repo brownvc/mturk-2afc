@@ -41,9 +41,7 @@ One way to use the scripts above:
 
 ## Credentials and Funding
 
-Daniel has an MTurk requester account that you can use; ask him for the credentials.
-
-If you need to add more funds to the account to run new experiments, ask Daniel and he will do that for you.
+You're welcome to create your own MTurk requester account, fund it via your own credit credit card, and then submit reimbursement requests to the department afterwards. Alternatively, Daniel has an MTurk requester account that you can use; ask him for the credentials. If you need to add more funds to the account to run new experiments, ask Daniel and he will do that for you.
 
 If you're wondering what settings to use for your HIT, especially how much to pay workers, these are the settings that Daniel has used for past 2AFC studies:
 
