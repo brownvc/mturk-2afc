@@ -1,0 +1,466 @@
+<link href="https://s3.amazonaws.com/mturk-public/bs30/css/bootstrap.min.css" rel="stylesheet" /><script src="https://s3.amazonaws.com/MTurks/jquery-1.11.2.min.js"></script><script src="https://s3.amazonaws.com/MTurks/jquery-ui.min.js"></script><script src="https://s3.amazonaws.com/MTurks/image-picker.min.js"></script>
+<style type="text/css">body {
+				margin: 0px 50px;
+				font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+				font-size: 14pt;
+			}
+			
+			#content_div {
+				margin: auto;
+				/*width: 900px;*/
+				width: 1100px;
+                position: relative;
+			}
+			
+			h3 {
+			}
+			
+			#long_info {
+			}
+			
+			#couhes {
+				color: #777;
+				font-style: italic;
+				margin: 20px 0px;
+				font-size: 12pt;
+			}
+			
+			#start_button, #continue_button {
+				width:300px;
+				height:80px;
+				font-size:30px;
+				border: 2px solid #AAA;
+				border-radius: 25px;
+				background-color: #EEE;
+			}
+			#start_button:hover {
+				border: 2px solid #999;
+				background-color: #CCC;
+			}
+			
+			button, #submit_button {
+				width:200px;
+				height:50px;
+				font-size:24px;
+				border: 1px solid #CCC;
+				border-radius: 10px;
+				background-color: #EEE;
+			}
+			button:hover {
+				border: 1px solid #AAA;
+				background-color: #CCC;
+			}
+			
+			#images_div {
+				margin: 100px 0px 40px 0px;
+			}
+			
+			#trial_num {
+				margin: 20px 0px 0px 0px;
+				font-size:16px;
+				color:#777;
+				font-style:italic;
+			}
+			
+			#feedback {
+			}
+			
+			#experiment_start {
+				font-size: 20px;
+			}
+			
+			table.demo_imgs {
+				text-align: center;
+				font-size: 12pt;
+				margin-top: 20px;
+			}
+			table.demo_imgs td {
+				padding: 2px 10px 0px 10px;
+			}
+</style>
+
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+<script type="text/javascript">
+(function(){
+    var ut_id = "${unique_id}";
+    if (UTWorkerLimitReached(ut_id)) {
+        document.getElementById('mturk_form').style.display = 'none';
+        document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+    }
+})();
+</script>
+
+
+<script type="text/javascript">
+
+
+////// HTML GENERATOR WRITES VALUES INTO THESE VARIABLES //////
+var num_real_comparisons = __NUM_REAL_COMPARISONS__;
+var num_vigilance_tests = __NUM_VIGILANCE_TESTS__;
+var img_base_url = __IMG_BASE_URL__;
+var prompt_text = __PROMPT__;
+///////////////////////////////////////////////////////////////
+
+
+
+// from http://stackoverflow.com/questions/15589764/how-to-hide-the-link-to-an-external-web-page-in-a-hit-before-workers-accept-the		
+$.extend({
+  getUrlVars: function(){
+    // From http://code.google.com/p/js-uri/source/browse/trunk/lib/URI.js
+    var parser = /^(?:([^:\/?\#]+):)?(?:\/\/([^\/?\#]*))?([^?\#]*)(?:\?([^\#]*))?(?:\#(.*))?/;
+    var result = window.location.href.match(parser);
+    var scheme    = result[1] || null;
+    var authority = result[2] || null;
+    var path      = result[3] || null;
+    var query     = result[4] || null;
+    var fragment  = result[5] || null
+    if (query === null || query === undefined) {
+      return {};
+    }
+    var vars = [], hash;
+    var hashes = query.split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+      hash = hashes[i].split('=');
+      vars.push(hash[0]);
+      vars[hash[0]] = hash[1];
+    }
+    return vars;
+  },
+  getUrlVar: function(name){
+    return $.getUrlVars()[name];
+  }
+});
+
+function setBodyHeight() {
+  var wh = $(window).height();
+  $('body').height(wh); // body height = window height
+}
+
+function sequence_helper(gt_side,image_left,image_right) {
+    var curr_im = null;
+	p.gt_side.push(gt_side);
+	curr_im = new Image();
+	curr_im.src = base_url + image_left + '.png';
+	p.images_left.push(curr_im);
+	curr_im = new Image();
+	curr_im.src = base_url + image_right + '.png';
+	p.images_right.push(curr_im);
+}
+
+function makeExperiment() {
+    p.is_practice = false;
+	p.im_num = 0;
+    p.initialized = false;
+    p.is_assigned = ($.getUrlVar('assignmentId') != 'ASSIGNMENT_ID_NOT_AVAILABLE');
+    p.practice_intro_shown = false;
+    p.experiment_intro_shown = false;
+	p.npractice = 0;
+	p.total_num_ims = num_real_comparisons + num_vigilance_tests;
+	p.gt_side = [];
+	p.images_left = [];
+	p.images_right = [];
+
+	//////// HTML GENERATOR FILLS THIS IN ///////////
+	__SEQUENCE_HELPERS__
+	/////////////////////////////////////////////////
+
+    return this;
+}
+
+
+var p = {};
+var base_url = img_base_url;
+var first_trial = true;
+var num_correct = 0;
+
+function assert(x, msg) { if (!x) { throw("Assertion failed: " + msg); } }
+
+function now() { return (new Date()).getTime() / 1000.; }
+
+function end() {
+    $('#choice_intro').hide();
+    $('#done').show();
+	$("#submitButton").show();
+}
+
+function showFixation() {
+    document.im.src = p.fixation_im.src;
+}
+function showBlank() {
+    document.im.src = "images/start_image.png";
+}
+
+function continue_to_main_expt() {
+	$('#experiment_start').hide();
+	next();
+}
+
+function next() {
+	
+	$('#feedbackA').html('');
+	$('#feedbackB').html('');
+	
+	$('#imageA').css('border','0px solid black');
+	$('#imageB').css('border','0px solid black');
+
+    if (p.is_practice && (p.im_num == p.npractice)) {
+    	
+		p.is_practice = false;
+		
+    	$('#feedback').hide();	
+    	$('#imageA').hide();
+    	$('#imageB').hide();
+    	$('#imageA_div').hide();
+    	$('#imageB_div').hide();
+     	$('#choice_intro').html("");
+      
+    	$('#experiment_start').show();
+    	
+    	return;
+    }
+	else if (p.im_num == p.total_num_ims) {
+		
+		end();
+		
+		return;
+	}
+	
+	var display_time = 1000;
+	var fade_time = 200;
+	var isi = 300;
+	
+	var offset_time = 5000;
+	
+    $('#feedback').hide();	
+	$('#imageA').hide();
+	$('#imageB').hide();
+
+	$('#choice_intro').html("");
+	$('#choice_intro').show();
+
+	$('#imageA_div').show();
+	$('#imageB_div').show();
+	
+	if (p.is_practice) {
+		$('#trial_num').html("<br><center>Practice trial " + (p.im_num+1) + " out of " + p.npractice + "</center>");
+	}
+	else {
+		$('#trial_num').html("<br><center>Trial " + (p.im_num+1-p.npractice) + " out of " + (p.total_num_ims-p.npractice) + "</center>");
+	}
+
+	var imageA = document.getElementById('imageA');
+	imageA.src = p.images_left[p.im_num].src;
+		
+	var imageB = document.getElementById('imageB');
+	imageB.src = p.images_right[p.im_num].src;
+
+	$('#choice_intro').html(prompt_text).show();
+    $("#imageA").show();
+    $("#imageB").show(); 
+ 
+    $('#trial_num').show(); 
+	$('#buttonA').fadeIn(fade_time);
+    $('#buttonB').fadeIn(fade_time);
+}
+
+
+function submitAnswer(answer) {
+	
+	$('#buttonA').hide();
+	$('#buttonB').hide();
+	$('#trial_num').hide();
+	
+	if (p.is_practice) {
+		   var is_correct = (p.gt_side[p.im_num]!=answer);
+		
+		   if (is_correct) {
+	       	   $('#feedback').html('<img width=24px src="http://web.mit.edu/phillipi/Public/colorization/check.png"/><br><span style="color:green;">You are correct!</span>');
+		   }
+		   else {
+			   $('#feedback').html('<span style="color:#cc0000">Incorrect. That image was real.</span>');
+		   }
+		   
+		   if (answer=='left') {
+			   if (is_correct) {
+	      	   		$('#imageA').css('border','6px solid green');
+		   	   }
+			   else {
+			   		$('#imageA').css('border','6px solid #cc0000');
+			   }
+		   }
+		   else {
+			   if (is_correct) {
+	      	   		$('#imageB').css('border','6px solid green');
+		   	   }
+			   else {
+			   		$('#imageB').css('border','6px solid #cc0000');
+			   }
+		   }
+		
+		$('#feedback').show();
+		$('#choice_intro').html('');
+		if (p.gt_side[p.im_num]=='left') {
+			$('#feedbackA').html('Real');
+			$('#feedbackB').html('Fake');
+		}
+		else {
+			$('#feedbackA').html('Fake');
+			$('#feedbackB').html('Real');
+		}
+   		$('#imageA').show();
+   		$('#imageB').show();
+   		$('#imageA_div').show();
+   		$('#imageB_div').show();
+		
+		$("#selection"+(p.im_num+1)).val(answer);
+		
+
+		p.im_num = p.im_num+1;
+				
+		// setTimeout(function() { next(); }, 2000);
+		next();
+	}
+	else {
+		var is_correct = (p.gt_side[p.im_num]!=answer);
+
+		num_correct += is_correct;
+		
+		$('#imageA').hide();
+		$('#imageB').hide();
+		$('#imageA_div').hide();
+		$('#imageB_div').hide();
+        $("#choice_intro").hide();	
+	
+		$("#selection"+(p.im_num+1)).val(answer);
+		p.im_num = p.im_num+1;
+				
+		// setTimeout(function() { next(); }, 2400);
+		next();
+	}
+}
+
+function startExperiment() {
+
+    if (p == null) {
+        return;
+    }
+    
+    p.is_practice = false;
+	
+    $('#buttons_start').hide();
+    $('#long_info').hide();
+    $('#couhes').hide();
+    $('#teaser').hide();
+
+    $('#images_div').show();
+
+    next();
+}
+
+
+function init() {
+	
+	$(window).bind('resize', function() { setBodyHeight(); });
+	
+	makeExperiment();
+	
+	$('#imageA').hide();
+	$('#imageB').hide();
+	$('#buttonA').hide();
+	$('#buttonB').hide();
+	
+	$("#submitButton").hide();
+	
+	if (p.is_assigned) {
+		$('#start_button').removeAttr('disabled');
+		$('#start_button').html('Start!');
+	}
+}
+
+$(document).ready(init);
+
+function restartExperiment() {
+}
+
+</script>
+
+
+
+<div id="content_div">
+<div align="center" id="images_div" style="display:none" width="100%">
+<div id="trial_num" style="display:none">&nbsp;</div>
+
+<div id="choice_intro" style="display:none;">&nbsp;</div>
+
+<div id="imageA_div" style="height:514px; width:514px; display:inline-block; border:0px solid black;">
+<div id="feedbackA" style="display:block; height: 30px">&nbsp;</div>
+<img id="imageA" style="display:block;" width="512px" />
+<div id="buttonA" style="position:relative; width:100%; height:25%"><button onclick="submitAnswer('left')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt" type="button">Left image</button></div>
+</div>
+
+<div id="imageB_div" style="height:514px; width:514px; display:inline-block; border:0px solid black;">
+<div id="feedbackB" style="display:block; height: 30px">&nbsp;</div>
+<img id="imageB" style="display:block;" width="512px" />
+<div id="buttonB" style="position:relative; width:100%; height:25%"><button onclick="submitAnswer('right')" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index: 10; font-size:14pt" type="button">Right image</button></div>
+</div>
+</div>
+
+<div align="center" id="feedback" style="display:none">&nbsp;</div>
+
+<div id="experiment_start" style="width: 1100px; margin: 0 auto; text-align: left; display:none"><br />
+You&#39;ve completed the practice exercise! Click &quot;Continue&quot; to continue on to the main task. The main task will be identical except that you won&#39;t be told whether or not your guess was correct.
+<div align="center" id="buttons_continue"><button id="continue_button" onclick="continue_to_main_expt()" type="button">Continue!</button></div>
+</div>
+
+<div align="center" id="short_info" style="width: 80%; margin: 0 auto; text-align: left; display:none">&nbsp;</div>
+&nbsp;
+
+<div id="long_info" style="width:100%"><b>About this HIT:</b><br />
+&nbsp;
+<ul>
+	<li>It should take about 5 minutes.</li>
+	<br />
+	<li>__EXPERIMENT_DESCRIPTION__<br />
+	&nbsp;</li>
+</ul>
+</div>
+
+<div align="center" id="buttons_start"><br />
+<button disabled="true" id="start_button" onclick="startExperiment()" type="button"><span style="font-size:16pt">Please accept HIT to start</span></button>&lt;div id=&quot;not_assigned&quot; align=&quot;left&quot; style=&quot;display:none&quot; &quot;=&quot;&quot;&gt;
+
+<p>Please accept the HIT to begin!</p>
+</div>
+</div>
+
+<div align="center" id="done" style="display:none">Thank you! You have completed the experiment.<br />
+&nbsp;
+<div id="score">&nbsp;</div>
+
+<div><textarea cols="31" id="comments" name="comments" rows="3">Comments?</textarea></div>
+<br />
+<br />
+Please click the submit button below to finish.</div>
+
+<div id="couhes"><br />
+<span id="informed_consent_text">By making judgments about these images, you are participating in a study being performed by scientists at Brown University. Your participation in this research is voluntary. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</span></div>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p><br />
+
+<!-- HTML GENERATOR FILLS THIS IN -->
+__HIDDEN_INPUTS__
+
+</p>
+
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
