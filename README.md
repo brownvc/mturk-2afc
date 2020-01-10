@@ -46,3 +46,7 @@ Daniel has an MTurk requester account that you can use; ask him for the credenti
 If you need to add more funds to the account to run new experiments, ask Daniel and he will do that for you.
 
 If you're wondering what settings to use for your HIT, especially how much to pay workers, these are the settings that Daniel has used for past 2AFC studies:
+
+## Acknowledgments
+
+The HTML template used here is based on one created by Phillip Isola (original can be found in [this repo](https://github.com/phillipi/AMT_Real_vs_Fake))
