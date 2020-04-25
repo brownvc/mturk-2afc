@@ -45,7 +45,7 @@ You're welcome to create your own MTurk requester account, fund it via your own 
 
 If you're wondering what settings to use for your HIT, especially how much to pay workers, these are the settings that Daniel has used for past 2AFC studies:
 
-![HIT settings screenshot](https://raw.githubusercontent.com/brownvc/mturk-2afc/master/hit_settings.png?token=AARAMRTRNRSEISR6Q3X67B26EIUPG)
+![HIT settings screenshot](./hit_settings.png)
 
 ## Acknowledgments
 
